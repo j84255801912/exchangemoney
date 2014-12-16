@@ -12,10 +12,8 @@ password = 'def456'
 port = '18332'
 
 class createmultisig(object):
-    def returnkeys(self):
+    def __init__(self, AKeys, BKeys):
         bitcoin = BitcoinConnection(user=user, password=password, port=port)
-        AKeys = self.AKeys
-        BKeys = self.BKeys
 
         # get C's address, pubkey, privkey
         try:
@@ -44,10 +42,8 @@ class createmultisig(object):
                             "address"       : addr,
                             "redeemScript"  : vr['hex'].encode('utf-8'),
                            }
-        return multisigAddress, CKeys
-    def __init__(self, AKeys, BKeys):
-        self.AKeys = AKeys
-        self.BKeys = BKeys
+        self.multisigAddress = multisigAddress
+        self.CKeys = CKeys
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description='create multisig address and return CKeys')
     argparser.add_argument("addressA", help="bitcoin address A", default="")

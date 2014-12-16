@@ -16,6 +16,7 @@ class waitfordeposit(object):
             1. scriptPubKey
             2. value
         '''
+        print bitcoin.listunspent().__dict__
         txidA = "2c4bbd08ce27702cd04ff69819ab44c4dd24d8f424fc91cbe9aa4acbe0997795"
         scriptPubKeyA = "a9148e373ae21e902662561dab6de709d20121dcd19487"
         valueA = float(100)

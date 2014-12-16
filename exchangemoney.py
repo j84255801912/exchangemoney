@@ -19,14 +19,9 @@ feeRate = 0.01
             if they did, exchange their funds.
             else return the funds.
 '''
-class ExchangeMoney(object):
+class exchangemoney(object):
     def __init__(self, AKeys, BKeys, CKeys, multisigAddress, state):
         bitcoin = BitcoinConnection(user=user, password=password, port=port)
-
-        (multisigAddress, CKeys) = createmultisig(AKeys, BKeys).returnkeys()
-
-        # wait for deposit
-        state = waitfordeposit(multisigAddress, AKeys, BKeys).state
 
         # create txs for return funds
         if state['success'] is True:
@@ -73,10 +68,8 @@ class ExchangeMoney(object):
                     "HexTxToA" : rawTxToA_SignedByC,
                     "HexTxToB" : rawTxToB_SignedByC
                         }
-            print self.ret
-
         # return these txs back to A and B
-
+'''
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description='Get pubkeys and privkeys from the address in your wallet.')
     argparser.add_argument("addressA", help="bitcoin address A", default="")
@@ -92,4 +85,5 @@ if __name__ == "__main__":
                 "address"   : args.addressB,
                 "pubkey"    : args.pubkeyB,
             }
-    hw = ExchangeMoney(AKeys, BKeys)
+    hw = exchangemoney(AKeys, BKeys)
+'''
