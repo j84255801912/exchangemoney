@@ -5,26 +5,63 @@ import json
 import sys
 
 from bitcoinrpc.connection import BitcoinConnection
+from getkeys import getkeys
 
 user = 'abc123'
 password = 'def456'
 port = '18332'
 
-class getkeys(object):
-    def __init__(self, reqSig, pubkey1, pubkey2):
+class createmultisig(object):
+    def returnkeys(self):
         bitcoin = BitcoinConnection(user=user, password=password, port=port)
+        AKeys = self.AKeys
+        BKeys = self.BKeys
 
-        keys = [pubkey1, pubkey2]
+        # get C's address, pubkey, privkey
         try:
-            cr = bitcoin.createmultisig(reqSig, keys)
+            addressC = bitcoin.getnewaddress()
         except Exception, e:
             print "Caught: ", e
             sys.exit(1)
-        print cr
+        CKeys = getkeys(addressC).keys
+
+        # addmultisig address made of A, B, C
+        # use addmultisigaddress instead of createmultisig is due to
+        # the fact that we can use listunspent to track this address.
+        try:
+            addr = bitcoin.addmultisigaddress(2, [AKeys['pubkey'], BKeys['pubkey'], CKeys['pubkey']]).encode('utf-8')
+        except Exception, e:
+            print "Caught: ", e
+            sys.exit(1)
+
+        # fetch the redeemScript for this multisigaddress
+        try:
+            vr = bitcoin.validateaddress(addr).__dict__
+        except Exception, e:
+            print "Caught: ", e
+            sys.exit(1)
+        multisigAddress = {
+                            "address"       : addr,
+                            "redeemScript"  : vr['hex'].encode('utf-8'),
+                           }
+        return multisigAddress, CKeys
+    def __init__(self, AKeys, BKeys):
+        self.AKeys = AKeys
+        self.BKeys = BKeys
 if __name__ == "__main__":
-    argparser = argparse.ArgumentParser(description='')
-    argparser.add_argument("reqSig", help="signature required to spent this address' money", default="")
-    argparser.add_argument("pubkey1", help="bitcoin public key 1", default="")
-    argparser.add_argument("pubkey2", help="bitcoin public key 2", default="")
+    argparser = argparse.ArgumentParser(description='create multisig address and return CKeys')
+    argparser.add_argument("addressA", help="bitcoin address A", default="")
+    argparser.add_argument("pubkeyA", help="bitcoin public key A", default="")
+    argparser.add_argument("addressB", help="bitcoin address B", default="")
+    argparser.add_argument("pubkeyB", help="bitcoin public key B", default="")
     args = argparser.parse_args()
-    hw = getkeys(int(args.reqSig), args.pubkey1, args.pubkey2)
+    AKeys = {
+                "address"   : args.addressA,
+                "pubkey"    : args.pubkeyA,
+            }
+    BKeys = {
+                "address"   : args.addressB,
+                "pubkey"    : args.pubkeyB,
+            }
+    args = argparser.parse_args()
+    hw = createmultisig(AKeys, BKeys)
